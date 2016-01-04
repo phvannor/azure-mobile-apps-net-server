@@ -17,6 +17,7 @@ using Owin;
 using ZumoE2EServerApp.DataObjects;
 using ZumoE2EServerApp.Models;
 using ZumoE2EServerApp.Utils;
+using System.Web.Http.Batch;
 
 namespace ZumoE2EServerApp
 {
@@ -71,9 +72,18 @@ namespace ZumoE2EServerApp
 
             Database.SetInitializer(new DbInitializer());
 
+            var server = new HttpServer(config);
+
+            config.Routes.MapHttpBatchRoute(
+                routeName: "batch",
+                routeTemplate: "api/batch",
+                batchHandler: new DefaultHttpBatchHandler(server));
+
             // Uncomment for local debugging
             // app.UseAppServiceAuthentication(config, AppServiceAuthenticationMode.LocalOnly);
-            app.UseWebApi(config);
+
+            app.UseWebApi(server);
+            // app.UseWebApi(config);
             app.UseStageMarker(PipelineStage.MapHandler);
         }
 
